@@ -4,14 +4,13 @@ from django.utils.safestring import mark_safe
 from .forms import TagForm
 from .models import Favorite, Ingredient, Recipe, RecipeIngredient, Tag
 
-# Register your models here.
 EMPTY = '-пусто-'
 
 
 @admin.register(Recipe)
 class RecipeAdmin(admin.ModelAdmin):
-    list_display = ("author", "title", "text", "time", "pub_date", 'pk')
-    search_fields = ("title", "author")
+    list_display = ("author", "name", "text", "cooking_time", "pub_date", 'pk')
+    search_fields = ("name", "author")
     empty_value_display = EMPTY
     save_on_top = True
 
@@ -38,7 +37,7 @@ class TagAdmin(admin.ModelAdmin):
 
 @admin.register(RecipeIngredient)
 class RecipeIngredientAdmin(admin.ModelAdmin):
-    list_display = ('recipe', "pk", "ingredient", "amount")
+    list_display = ('recipe', "pk", "ingredients", "amount")
     search_fields = ('recipe',)
     list_filter = ('recipe',)
     empty_value_display = EMPTY

@@ -47,7 +47,6 @@ class RecipeViewSet(viewsets.ModelViewSet):
     def post_method_for_action(request, pk, serializers):
         data = {'user': request.user.id, 'recipe': pk}
         serializer = serializers(data=data, context={'request': request})
-        print(request.path)
         serializer.is_valid(raise_exception=True)
         if 'shopping_cart' in request.path:
             try:
@@ -111,16 +110,16 @@ class RecipeViewSet(viewsets.ModelViewSet):
     def download_shopping_cart(self, request):
         ingredients = RecipeIngredient.objects.filter(
             recipe__shopping_list__user=request.user).values(
-            'ingredient__name',
-            'ingredient__measurement_unit').annotate(total=Sum('amount'))
+            'ingredients__name',
+            'ingredients__measurement_unit').annotate(total=Sum('amount'))
         shopping_list = 'Cписок покупок:\n'
         if ingredients:
             for number, ingredient in enumerate(ingredients, start=1):
                 shopping_list += (
                     f'{number} '
-                    f'{ingredient["ingredient__name"]} - '
+                    f'{ingredient["ingredients__name"]} - '
                     f'{ingredient["total"]} '
-                    f'{ingredient["ingredient__measurement_unit"]}\n')
+                    f'{ingredient["ingredients__measurement_unit"]}\n')
 
             purchase_list = 'purchase_list.txt'
             response = HttpResponse(shopping_list,

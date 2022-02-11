@@ -7,11 +7,11 @@ class RecipeFilter(FilterSet):
     is_favorited = filters.BooleanFilter(method='get_is_favorited')
     is_in_shopping_cart = filters.BooleanFilter(
         method='get_is_in_shopping_cart')
-    tag = filters.AllValuesMultipleFilter(field_name='tag__slug')
+    tag = filters.AllValuesMultipleFilter(field_name='tags__slug')
 
     class Meta:
         model = Recipe
-        fields = ('tag', 'author', 'is_favorited', 'is_in_shopping_cart')
+        fields = ('tags', 'author', 'is_favorited', 'is_in_shopping_cart')
 
     def get_is_favorited(self, queryset, name, value):
         if value:

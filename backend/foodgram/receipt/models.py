@@ -1,6 +1,7 @@
 from django.db import models
 
 from users.models import User
+from .validators import validate_positive
 
 
 class Ingredient(models.Model):
@@ -29,22 +30,23 @@ class RecipeIngredient(models.Model):
         'Recipe',
         on_delete=models.CASCADE,
     )
-    ingredient = models.ForeignKey(Ingredient,
-                                   on_delete=models.CASCADE,
-                                   verbose_name='Ингредиент')
-    amount = models.FloatField(verbose_name='Количество')
+    ingredients = models.ForeignKey(Ingredient,
+                                    on_delete=models.CASCADE,
+                                    verbose_name='Ингредиент')
+    amount = models.FloatField(validators=[validate_positive],
+                               verbose_name='Количество')
 
     def __str__(self):
-        return (f"{self.ingredient.name}"
-                f"- {self.amount} {self.ingredient.measurement_unit}")
+        return (f"{self.ingredients.name}"
+                f"- {self.amount} {self.ingredients.measurement_unit}")
 
     class Meta:
         verbose_name = 'Количество ингредиентов'
         verbose_name_plural = 'Количество ингредиентов'
-        ordering = ('-ingredient',)
+        ordering = ('-ingredients',)
         constraints = (
             models.UniqueConstraint(
-                fields=('ingredient', 'recipe',),
+                fields=('ingredients', 'recipe',),
                 name='unique_ingredient_amount',
             ),
         )
@@ -55,21 +57,21 @@ class Recipe(models.Model):
                                on_delete=models.CASCADE,
                                related_name="recipes",
                                verbose_name='Автор')
-    title = models.CharField(verbose_name='Название рецепта', max_length=300)
-    ingredient = models.ManyToManyField(Ingredient,
-                                        through=RecipeIngredient,
-                                        verbose_name='Ингредиенты',
-                                        related_name="ingredients")
-    tag = models.ManyToManyField('Tag',
-                                 related_name='recipes',
-                                 verbose_name='Тэг')
+    name = models.CharField(verbose_name='Название рецепта', max_length=300)
+    ingredients = models.ManyToManyField(Ingredient,
+                                         through=RecipeIngredient,
+                                         verbose_name='Ингредиенты',
+                                         related_name="ingredients")
+    tags = models.ManyToManyField('Tag',
+                                  related_name='recipes',
+                                  verbose_name='Тэг')
     text = models.TextField(verbose_name='Ваш рецепт',
                             help_text='Опишите ваш рецепт')
     image = models.ImageField(upload_to='receipt/images/',
                               verbose_name='Загрузить фото',
                               help_text='Добавьте изображение'
                               )
-    time = models.PositiveIntegerField(verbose_name='Время приготовления')
+    cooking_time = models.PositiveIntegerField(verbose_name='Время приготовления')
     pub_date = models.DateTimeField("Дата публикации", auto_now_add=True)
     slug = models.SlugField(max_length=255,
                             unique=True,
