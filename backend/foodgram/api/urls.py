@@ -1,7 +1,6 @@
 from django.urls import include, path
-from rest_framework.routers import DefaultRouter
-
 from receipt.views import GetIngredientViewSet, RecipeViewSet, TagViewSet
+from rest_framework.routers import DefaultRouter
 
 r1 = DefaultRouter()
 r1.register('ingredients', GetIngredientViewSet)

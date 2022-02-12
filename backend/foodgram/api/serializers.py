@@ -1,10 +1,9 @@
 from djoser.serializers import UserCreateSerializer, UserSerializer
 from drf_extra_fields.fields import Base64ImageField
-from rest_framework import serializers
-from rest_framework.validators import UniqueTogetherValidator
-
 from receipt.models import (Favorite, Ingredient, Recipe, RecipeIngredient,
                             ShoppingList, Tag)
+from rest_framework import serializers
+from rest_framework.validators import UniqueTogetherValidator
 from users.models import Subscribe, User
 
 
@@ -123,7 +122,7 @@ class RecipeIngredientSerializer(serializers.ModelSerializer):
 
 
 class RecipeReadSerializer(serializers.ModelSerializer):
-    tag = TagSerializer(many=True, read_only=True)
+    tags = TagSerializer(many=True, read_only=True)
     author = CustomUserSerializer(read_only=True)
     ingredients = serializers.SerializerMethodField(read_only=True)
     is_favorited = serializers.SerializerMethodField()
@@ -132,7 +131,7 @@ class RecipeReadSerializer(serializers.ModelSerializer):
     class Meta:
         model = Recipe
         fields = (
-            'id', 'name', 'tag', 'author', 'ingredients', 'is_favorited',
+            'id', 'name', 'tags', 'author', 'ingredients', 'is_favorited',
             'is_in_shopping_cart', 'image', 'text', 'cooking_time',
         )
 
@@ -155,15 +154,14 @@ class RecipeReadSerializer(serializers.ModelSerializer):
 
 
 class RecipeSerializer(serializers.ModelSerializer):
-    tag = serializers.PrimaryKeyRelatedField(
-        queryset=Tag.objects.all(), many=True)
-    ingredient = RecipeIngredientSerializer(many=True)
+    tags = TagSerializer(read_only=True, many=True)
+    ingredients = RecipeIngredientSerializer(many=True)
     author = CustomUserSerializer(read_only=True)
     image = Base64ImageField()
 
     class Meta:
         model = Recipe
-        fields = ('id', 'tag', 'author', 'ingredient',
+        fields = ('id', 'tags', 'author', 'ingredients',
                   'name', 'image', 'text', 'cooking_time')
 
     def validate(self, data):
