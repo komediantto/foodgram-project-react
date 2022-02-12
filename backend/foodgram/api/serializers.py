@@ -189,6 +189,16 @@ class RecipeSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError({
                 'cooking_time': 'Время приготовления должно быть больше нуля!'
             })
+        tags = self.initial_data.get('tags')
+        if not tags:
+            raise serializers.ValidationError(
+                'Нужен минимум один тэг для рецепта'
+            )
+        for tag_id in tags:
+            if not Tag.objects.filter(id=tag_id).exists():
+                raise serializers.ValidationError(
+                    f'тэга с id = {tag_id} не существует'
+                )
 
         return data
 
@@ -199,21 +209,12 @@ class RecipeSerializer(serializers.ModelSerializer):
                 recipe=recipe, ingredients=ingredient['id'],
                 amount=ingredient['amount'])
 
-    @staticmethod
-    def create_tags(tags, recipe):
-        for tag in tags:
-            recipe.tags.add(tag)
-
     def create(self, validated_data):
-        author = self.context.get('request').user
-        if author.is_anonymous:
-            raise serializers.ValidationError({
-                        'detail': 'Авторизуйтесь для создания рецепта'
-                    })
-        tags = validated_data.pop('tags')
-        ingredients = validated_data.pop('ingredients')
-        recipe = Recipe.objects.create(author=author, **validated_data)
-        self.create_tags(tags, recipe)
+        validated_data.pop('recipe')
+        tags = self.initial_data.pop('tags')
+        ingredients = self.initial_data.pop('ingredients')
+        recipe = Recipe.objects.create(**validated_data)
+        recipe.tags.set(tags)
         self.create_ingredients(ingredients, recipe)
         return recipe
 
