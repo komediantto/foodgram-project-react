@@ -1,6 +1,7 @@
 from django.db import models
-from users.models import User
 from pytils.translit import slugify
+
+from users.models import User
 
 from .validators import validate_positive
 
@@ -30,10 +31,15 @@ class RecipeIngredient(models.Model):
     recipe = models.ForeignKey(
         'Recipe',
         on_delete=models.CASCADE,
+        related_name='recipe_ingredients',
+        verbose_name='Рецепт'
     )
-    ingredients = models.ForeignKey(Ingredient,
-                                    on_delete=models.PROTECT,
-                                    verbose_name='Ингредиент')
+    ingredients = models.ForeignKey(
+        Ingredient,
+        on_delete=models.PROTECT,
+        related_name='ingredients_recipe',
+        verbose_name='Ингредиент'
+    )
     amount = models.FloatField(validators=[validate_positive],
                                verbose_name='Количество')
 
@@ -65,7 +71,7 @@ class Recipe(models.Model):
                                          through_fields=('recipe',
                                                          'ingredients'),)
     tags = models.ManyToManyField('Tag',
-                                  related_name='recipes',
+                                  through='RecipeTag',
                                   verbose_name='Тэг')
     text = models.TextField(verbose_name='Ваш рецепт',
                             help_text='Опишите ваш рецепт')
@@ -73,7 +79,9 @@ class Recipe(models.Model):
                               verbose_name='Загрузить фото',
                               help_text='Добавьте изображение'
                               )
-    cooking_time = models.PositiveIntegerField(verbose_name='Время приготовления')
+    cooking_time = models.PositiveIntegerField(
+        verbose_name='Время приготовления'
+        )
     pub_date = models.DateTimeField("Дата публикации", auto_now_add=True)
 
     class Meta:
@@ -106,6 +114,27 @@ class Tag(models.Model):
         if not self.slug:
             self.slug = slugify(self.title)[:50]
         super().save(*args, **kwargs)
+
+
+class RecipeTag(models.Model):
+    recipe = models.ForeignKey(
+        Recipe,
+        on_delete=models.CASCADE,
+        verbose_name='Рецепт'
+    )
+    tag = models.ForeignKey(
+        Tag,
+        on_delete=models.CASCADE,
+        verbose_name='Тег'
+    )
+
+    class Meta:
+        verbose_name = 'Теги рецепта'
+        constraints = (
+            models.UniqueConstraint(
+                fields=('recipe', 'tag'), name='unique_tag'
+            ),
+        )
 
 
 class Favorite(models.Model):

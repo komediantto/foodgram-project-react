@@ -1,9 +1,10 @@
 from djoser.serializers import UserCreateSerializer, UserSerializer
 from drf_extra_fields.fields import Base64ImageField
-from receipt.models import (Favorite, Ingredient, Recipe, RecipeIngredient,
-                            ShoppingList, Tag)
 from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator
+
+from receipt.models import (Favorite, Ingredient, Recipe, RecipeIngredient,
+                            ShoppingList, Tag)
 from users.models import Subscribe, User
 
 
@@ -43,7 +44,7 @@ class SubscribeSerializer(serializers.ModelSerializer):
     user = serializers.PrimaryKeyRelatedField(
         queryset=User.objects.all()
     )
-    subscribing = serializers.PrimaryKeyRelatedField(
+    author = serializers.PrimaryKeyRelatedField(
         queryset=User.objects.all()
     )
 
@@ -115,13 +116,24 @@ class TagSerializer(serializers.ModelSerializer):
 class RecipeIngredientSerializer(serializers.ModelSerializer):
     id = serializers.ReadOnlyField(source='ingredients.id')
     name = serializers.ReadOnlyField(source='ingredients.name')
-    amount = serializers.IntegerField()
     measurement_unit = serializers.ReadOnlyField(
         source='ingredients.measurement_unit')
 
     class Meta:
         model = RecipeIngredient
         fields = ('id', 'name', 'amount', 'measurement_unit')
+
+
+class IngredientsInRecipesPostSerializer(serializers.ModelSerializer):
+    id = serializers.PrimaryKeyRelatedField(queryset=Ingredient.objects.all())
+    amount = serializers.IntegerField(write_only=True)
+
+    class Meta:
+        model = RecipeIngredient
+        fields = (
+            'id',
+            'amount'
+        )
 
 
 class RecipeReadSerializer(serializers.ModelSerializer):
@@ -159,7 +171,7 @@ class RecipeReadSerializer(serializers.ModelSerializer):
 class RecipeSerializer(serializers.ModelSerializer):
     tags = serializers.PrimaryKeyRelatedField(
         queryset=Tag.objects.all(), many=True)
-    ingredients = RecipeIngredientSerializer(many=True)
+    ingredients = IngredientsInRecipesPostSerializer(many=True)
     author = CustomUserSerializer(read_only=True)
     image = Base64ImageField()
 
@@ -167,9 +179,6 @@ class RecipeSerializer(serializers.ModelSerializer):
         model = Recipe
         fields = ('id', 'tags', 'author', 'ingredients',
                   'name', 'image', 'text', 'cooking_time')
-
-    def all_list_values_is_unique(self, data_list):
-        return len(data_list) == len(set(data_list))
 
     def validate(self, data):
         ingredients = self.initial_data.get('ingredients')
@@ -212,21 +221,19 @@ class RecipeSerializer(serializers.ModelSerializer):
     @staticmethod
     def create_ingredients(ingredients, recipe):
         for ingredient in ingredients:
-            item = ingredient['id']
-            amount = ingredient['amount']
             RecipeIngredient.objects.create(
-                ingredients=item,
                 recipe=recipe,
-                amount=amount
+                ingredients=ingredient['id'],
+                amount=ingredient['amount'],
             )
 
     def create(self, validated_data):
         tags = validated_data.pop('tags')
-        ingredients = validated_data.pop('ingredients')
+        ingredient = validated_data.pop('ingredients')
         recipe = Recipe.objects.create(
             author=self.context['request'].user, **validated_data)
         recipe.tags.set(tags)
-        self.create_ingredients(ingredients, recipe)
+        self.create_ingredients(ingredient, recipe)
         return recipe
 
     def update(self, instance, validated_data):

@@ -1,13 +1,18 @@
 from django_filters.rest_framework import FilterSet, filters
 
-from .models import Recipe
+from .models import Recipe, Tag
 
 
 class RecipeFilter(FilterSet):
     is_favorited = filters.BooleanFilter(method='get_is_favorited')
     is_in_shopping_cart = filters.BooleanFilter(
         method='get_is_in_shopping_cart')
-    tag = filters.AllValuesMultipleFilter(field_name='tags__slug')
+    tags = filters.ModelMultipleChoiceFilter(
+        field_name='tags__slug',
+        queryset=Tag.objects.all(),
+        label='Tags',
+        to_field_name="slug",
+    )
 
     class Meta:
         model = Recipe

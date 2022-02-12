@@ -9,13 +9,15 @@ EMPTY = '-пусто-'
 
 @admin.register(Recipe)
 class RecipeAdmin(admin.ModelAdmin):
-    list_display = ("author", "name", "text", "cooking_time", "pub_date", 'pk')
-    search_fields = ("name", "author")
+    list_display = ('author', 'name', 'pub_date', 'pk')
+    search_fields = ('name', 'author', 'tags')
+    list_filter = ('author', 'name', 'tags')
+    filter_horizontal = ('tags',)
     empty_value_display = EMPTY
     save_on_top = True
 
     def get_html_photo(self, object):
-        return mark_safe(f"<img src='{object.image.url}' width=100>")
+        return mark_safe(f'<img src="{object.image.url}" width=100>')
 
 
 @admin.register(Ingredient)
@@ -37,10 +39,15 @@ class TagAdmin(admin.ModelAdmin):
 
 @admin.register(RecipeIngredient)
 class RecipeIngredientAdmin(admin.ModelAdmin):
-    list_display = ('recipe', "pk", "ingredients", "amount")
+    list_display = ('recipe', 'pk', 'ingredients', 'amount')
     search_fields = ('recipe',)
     list_filter = ('recipe',)
     empty_value_display = EMPTY
+
+
+class IngredientItemAdmin(admin.StackedInline):
+    model = Recipe.ingredients.through
+    extra = 0
 
 
 @admin.register(Favorite)
