@@ -53,11 +53,14 @@ class RecipeViewSet(viewsets.ModelViewSet):
             except IntegrityError:
                 return Response('Рецепт уже в списке покупок')
             return Response(serializer.data, status=status.HTTP_201_CREATED)
-        else:
+        elif 'favorite' in request.path:
             try:
                 serializer.save()
             except IntegrityError:
                 return Response('Рецепт уже в избранном')
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        else:
+            serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     @action(methods=['POST'], detail=True,
