@@ -109,7 +109,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
     @action(detail=False, permission_classes=[permissions.IsAuthenticated])
     def download_shopping_cart(self, request):
         ingredients = RecipeIngredient.objects.filter(
-            recipe__shopping_list__user=request.user).values(
+            recipe__shopping_cart__user=request.user).values(
             'ingredients__name',
             'ingredients__measurement_unit').annotate(total=Sum('amount'))
         shopping_list = 'Cписок покупок:\n'
