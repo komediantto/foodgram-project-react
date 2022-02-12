@@ -185,6 +185,10 @@ class RecipeSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError({
                 'cooking_time': 'Время приготовления должно быть больше нуля!'
             })
+        tags = data.get('tags')
+        if not self.all_list_values_is_unique(tags):
+            raise serializers.ValidationError(
+                'Тэги не должны повторяться.')
         return data
 
     @staticmethod
@@ -212,12 +216,16 @@ class RecipeSerializer(serializers.ModelSerializer):
         self.create_ingredients(ingredients, recipe)
         return recipe
 
-    def update(self, instance, validated_data):
-        instance.tag.clear()
-        RecipeIngredient.objects.filter(recipe=instance).delete()
-        self.create_tags(validated_data.pop('tags'), instance)
-        self.create_ingredients(validated_data.pop('ingredients'), instance)
-        return super().update(instance, validated_data)
+    def update(self, obj, validated_data):
+        tags = validated_data.pop('tags')
+        ingredients = validated_data.pop('ingredients')
+        super().update(obj, validated_data)
+        obj.tags.clear()
+        self.add_tags(tags, obj)
+        RecipeIngredient.objects.filter(recipe=obj).all().delete()
+        self.add_ingredients(ingredients, obj)
+        obj.save()
+        return obj
 
     def to_representation(self, instance):
         request = self.context.get('request')
