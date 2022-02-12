@@ -1,5 +1,6 @@
 from django.db import models
 from users.models import User
+from pytils.translit import slugify
 
 from .validators import validate_positive
 
@@ -73,10 +74,6 @@ class Recipe(models.Model):
                               )
     cooking_time = models.PositiveIntegerField(verbose_name='Время приготовления')
     pub_date = models.DateTimeField("Дата публикации", auto_now_add=True)
-    slug = models.SlugField(max_length=255,
-                            unique=True,
-                            db_index=True,
-                            verbose_name="slug")
 
     class Meta:
         verbose_name = 'Рецепт'
@@ -103,6 +100,11 @@ class Tag(models.Model):
 
     def __str__(self) -> str:
         return f'{self.name}'
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.title)[:50]
+        super().save(*args, **kwargs)
 
 
 class Favorite(models.Model):
