@@ -132,7 +132,7 @@ class RecipeReadSerializer(serializers.ModelSerializer):
     class Meta:
         model = Recipe
         fields = (
-            'id', 'name', 'tags', 'author', 'ingredients', 'is_favorited',
+            'id', 'name', 'tag', 'author', 'ingredients', 'is_favorited',
             'is_in_shopping_cart', 'image', 'text', 'cooking_time',
         )
 
@@ -163,7 +163,7 @@ class RecipeSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Recipe
-        fields = ('id', 'tags', 'author', 'ingredients',
+        fields = ('id', 'tag', 'author', 'ingredient',
                   'name', 'image', 'text', 'cooking_time')
 
     def validate(self, data):

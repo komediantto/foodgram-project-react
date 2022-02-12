@@ -84,7 +84,7 @@ class Recipe(models.Model):
         ordering = ('-pub_date',)
 
     def __str__(self):
-        return self.title
+        return self.name
 
 
 class Tag(models.Model):
