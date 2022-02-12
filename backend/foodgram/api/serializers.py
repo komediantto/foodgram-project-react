@@ -188,7 +188,7 @@ class RecipeSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError({
                 'cooking_time': 'Время приготовления должно быть больше нуля!'
             })
-        tags = data.get('tags')
+        tags = self.initial_data.get('tags')
         if not self.all_list_values_is_unique(tags):
             raise serializers.ValidationError(
                 'Тэги не должны повторяться.')
