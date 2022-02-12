@@ -113,12 +113,15 @@ class TagSerializer(serializers.ModelSerializer):
 
 
 class RecipeIngredientSerializer(serializers.ModelSerializer):
-    id = serializers.PrimaryKeyRelatedField(queryset=Ingredient.objects.all())
+    id = serializers.ReadOnlyField(source='ingredients.id')
+    name = serializers.ReadOnlyField(source='ingredients.name')
     amount = serializers.IntegerField()
+    measurement_unit = serializers.ReadOnlyField(
+        source='ingredients.measurement_unit')
 
     class Meta:
         model = RecipeIngredient
-        fields = ('id', 'amount',)
+        fields = ('id', 'name', 'amount', 'measurement_unit')
 
 
 class RecipeReadSerializer(serializers.ModelSerializer):
@@ -203,7 +206,7 @@ class RecipeSerializer(serializers.ModelSerializer):
             set([tag['id'] for tag in tags])
         )
         if tags_list > tags_set:
-            raise serializers.ValidationError(UNIQUE_TAG_ERROR)
+            raise serializers.ValidationError('Тэг должен быть уникальным!')
         return data
 
     @staticmethod
@@ -223,11 +226,21 @@ class RecipeSerializer(serializers.ModelSerializer):
         return recipe
 
     def update(self, instance, validated_data):
-        instance.tags.clear()
-        RecipeIngredient.objects.filter(recipe=instance).delete()
-        self.create_tags(validated_data.pop('tags'), instance)
-        self.create_ingredients(validated_data.pop('ingredients'), instance)
-        return super().update(instance, validated_data)
+        tags = self.context['request'].data['tags']
+        instance.tags.set(tags)
+        instance.name = validated_data.get('name', instance.image)
+        instance.text = validated_data.get('text', instance.text)
+        instance.cooking_time = validated_data.get(
+            'cooking_time',
+            instance.cooking_time
+        )
+        instance.image = validated_data.get('image', instance.image)
+        if 'ingredients' in self.initial_data:
+            ingredients = validated_data.pop('ingredients')
+            instance.ingredients.clear()
+            self.create_ingredients(ingredients, instance)
+        instance.save()
+        return instance
 
     def to_representation(self, instance):
         request = self.context.get('request')

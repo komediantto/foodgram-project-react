@@ -32,14 +32,10 @@ class RecipeIngredient(models.Model):
         on_delete=models.CASCADE,
     )
     ingredients = models.ForeignKey(Ingredient,
-                                    on_delete=models.CASCADE,
+                                    on_delete=models.PROTECT,
                                     verbose_name='Ингредиент')
     amount = models.FloatField(validators=[validate_positive],
                                verbose_name='Количество')
-
-    def __str__(self):
-        return (f"{self.ingredients.name}"
-                f"- {self.amount} {self.ingredients.measurement_unit}")
 
     class Meta:
         verbose_name = 'Количество ингредиентов'
@@ -51,6 +47,10 @@ class RecipeIngredient(models.Model):
                 name='unique_ingredient_amount',
             ),
         )
+
+    def __str__(self):
+        return (f"{self.ingredients.name}"
+                f"- {self.amount} {self.ingredients.measurement_unit}")
 
 
 class Recipe(models.Model):
