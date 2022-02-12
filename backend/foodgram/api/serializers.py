@@ -164,6 +164,9 @@ class RecipeSerializer(serializers.ModelSerializer):
         fields = ('id', 'tags', 'author', 'ingredients',
                   'name', 'image', 'text', 'cooking_time')
 
+    def all_list_values_is_unique(self, data_list):
+        return len(data_list) == len(set(data_list))
+
     def validate(self, data):
         ingredients = self.initial_data.get('ingredients')
         ingredients_list = []
