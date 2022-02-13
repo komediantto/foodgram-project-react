@@ -6,6 +6,11 @@
 ![Django](https://img.shields.io/badge/Django-092E20?style=for-the-badge&logo=django&logoColor=white)
 ![PostgresSQL](https://img.shields.io/badge/PostgreSQL-316192?style=for-the-badge&logo=postgresql&logoColor=whit)
 
+## Проект в интернете
+Проект запущен и доступен по [адресу](http://komedianttosite.serveblog.net/)
+Логин админа:testadmin@mail.ru
+Пароль админа: testadmin
+
 ## Описание
 
 Приложение **«Продуктовый помощник»**: сайт, на котором пользователи могут публиковать рецепты, добавлять чужие рецепты в избранное и подписываться на публикации других авторов. Сервис «Список покупок» позволит пользователям создавать список продуктов, которые нужно купить для приготовления выбранных блюд.
@@ -69,7 +74,3 @@ sudo docker-compose up -d --build
     ```
     - Проект будет доступен по вашему IP
 
-## Проект в интернете
-Проект запущен и доступен по [адресу](http://komedianttosite.serveblog.net/)
-Логин админа:TestAdmin@mail.ru
-Пароль админа: TestAdmin
