@@ -6,8 +6,6 @@
 ![Django](https://img.shields.io/badge/Django-092E20?style=for-the-badge&logo=django&logoColor=white)
 ![PostgresSQL](https://img.shields.io/badge/PostgreSQL-316192?style=for-the-badge&logo=postgresql&logoColor=whit)
 
-[![foodgram_workflows](https://github.com/igor9041/foodgram-project-react/actions/workflows/foodgram_workflow.yml/badge.svg)](https://github.com/igor9041/foodgram-project-react/actions/workflows/foodgram_workflow.yml)
-
 ## Описание
 
 Приложение **«Продуктовый помощник»**: сайт, на котором пользователи могут публиковать рецепты, добавлять чужие рецепты в избранное и подписываться на публикации других авторов. Сервис «Список покупок» позволит пользователям создавать список продуктов, которые нужно купить для приготовления выбранных блюд.
