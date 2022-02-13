@@ -68,3 +68,8 @@ sudo docker-compose up -d --build
     sudo docker-compose exec backend python manage.py createsuperuser
     ```
     - Проект будет доступен по вашему IP
+
+## Проект в интернете
+Проект запущен и доступен по [адресу](http://komedianttosite.serveblog.net/)
+Логин админа:TestAdmin@mail.ru
+Пароль админа: TestAdmin
