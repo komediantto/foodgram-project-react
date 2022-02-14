@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.utils.safestring import mark_safe
 
 from .forms import TagForm
-from .models import Favorite, Ingredient, Recipe, RecipeIngredient, Tag
+from .models import Favorite, Ingredient, Recipe, RecipeIngredient, RecipeTag, Tag
 
 EMPTY = '-пусто-'
 
@@ -20,6 +20,11 @@ class RecipeIngredientInline(admin.TabularInline):
     extra = 2
 
 
+class RecipeTagInline(admin.TabularInline):
+    model = RecipeTag
+    extra = 1
+
+
 @admin.register(Recipe)
 class RecipeAdmin(admin.ModelAdmin):
     list_display = ('author', 'name', 'pub_date', 'pk')
@@ -27,7 +32,7 @@ class RecipeAdmin(admin.ModelAdmin):
     list_filter = ('author', 'name', 'tags')
     filter_horizontal = ('tags',)
     empty_value_display = EMPTY
-    inlines = (RecipeIngredientInline,)
+    inlines = (RecipeIngredientInline, RecipeTagInline)
     readonly_fields = ('get_favorites_count',)
 
     @admin.display(description='Общее число добавлений в избранное')
