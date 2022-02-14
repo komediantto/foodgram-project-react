@@ -80,6 +80,7 @@ class Recipe(models.Model):
                               help_text='Добавьте изображение'
                               )
     cooking_time = models.PositiveIntegerField(
+        validators=[validate_positive],
         verbose_name='Время приготовления'
         )
     pub_date = models.DateTimeField("Дата публикации", auto_now_add=True)

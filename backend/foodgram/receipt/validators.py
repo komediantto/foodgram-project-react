@@ -3,7 +3,7 @@ from django.utils.translation import gettext_lazy as _
 
 
 def validate_positive(value):
-    if value < 0:
+    if value <= 0:
         raise ValidationError(
             _('%(value)s не является положительным. '),
             params={'value': value},
