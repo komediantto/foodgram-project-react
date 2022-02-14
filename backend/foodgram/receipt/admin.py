@@ -7,6 +7,19 @@ from .models import Favorite, Ingredient, Recipe, RecipeIngredient, Tag
 EMPTY = '-пусто-'
 
 
+@admin.register(Ingredient)
+class IngredientAdmin(admin.ModelAdmin):
+    list_display = ('name', 'measurement_unit', 'pk')
+    search_fields = ('name',)
+    list_filter = ('name',)
+    empty_value_display = EMPTY
+
+
+class RecipeIngredientInline(admin.TabularInline):
+    model = Recipe.ingredients.through
+    extra = 2
+
+
 @admin.register(Recipe)
 class RecipeAdmin(admin.ModelAdmin):
     list_display = ('author', 'name', 'pub_date', 'pk')
@@ -14,18 +27,15 @@ class RecipeAdmin(admin.ModelAdmin):
     list_filter = ('author', 'name', 'tags')
     filter_horizontal = ('tags',)
     empty_value_display = EMPTY
-    save_on_top = True
+    inlines = (RecipeIngredientInline,)
+    readonly_fields = ('get_favorites_count',)
+
+    @admin.display(description='Общее число добавлений в избранное')
+    def get_favorites_count(self, obj):
+        return obj.favorites.count()
 
     def get_html_photo(self, object):
         return mark_safe(f'<img src="{object.image.url}" width=100>')
-
-
-@admin.register(Ingredient)
-class IngredientAdmin(admin.ModelAdmin):
-    list_display = ('name', 'measurement_unit', 'pk')
-    search_fields = ('name',)
-    list_filter = ('name',)
-    empty_value_display = EMPTY
 
 
 @admin.register(Tag)
@@ -43,11 +53,6 @@ class RecipeIngredientAdmin(admin.ModelAdmin):
     search_fields = ('recipe',)
     list_filter = ('recipe',)
     empty_value_display = EMPTY
-
-
-class IngredientItemAdmin(admin.StackedInline):
-    model = Recipe.ingredients.through
-    extra = 0
 
 
 @admin.register(Favorite)
